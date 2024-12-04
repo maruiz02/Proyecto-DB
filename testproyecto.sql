@@ -54,6 +54,19 @@ foreign key (idLista) references listas (idLista) on update cascade on delete ca
 )engine=innodb;
 
 -- Uso de procedimentos almacenados o triggers para la base de datos 
+-- trigger para agregar articulos 
+DELIMITER //
+CREATE TRIGGER after_insert_articulos
+AFTER INSERT ON articulos
+FOR EACH ROW
+BEGIN
+    DECLARE msg VARCHAR(100);
+    SET msg = CONCAT('Se ha insertado un nuevo artículo: ID=', NEW.idArt, ', Precio=', NEW.precArt, ', Existencia=', NEW.existArt);
+    -- Imprimir el mensaje en el log del servidor
+    SELECT msg;
+END 
+//
+INSERT INTO articulos (precArt, existArt) VALUES (19.99, 150);
 -- 4.- Listar la sucursal y los regalos que están seleccionados para un evento en particular.
 DELIMITER //
 
