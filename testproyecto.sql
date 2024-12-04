@@ -55,21 +55,34 @@ foreign key (idLista) references listas (idLista) on update cascade on delete ca
 
 -- Uso de procedimentos almacenados o triggers para la base de datos 
 -- trigger para agregar articulos 
+ALTER TABLE articulos ADD fechaAgregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 DELIMITER //
 CREATE TRIGGER after_insert_articulos
 AFTER INSERT ON articulos
 FOR EACH ROW
 BEGIN
-    DECLARE msg VARCHAR(100);
-    SET msg = CONCAT('Se ha insertado un nuevo artículo: ID=', NEW.idArt, ', Precio=', NEW.precArt, ', Existencia=', NEW.existArt);
-    -- Imprimir el mensaje en el log del servidor
-    SELECT msg;
+    -- Actualiza la fecha del artiuclo agregado al momento de la inserción
+    UPDATE articulos SET fechaAgregado = NOW() WHERE idArt = NEW.idArt;
 END 
 //
 INSERT INTO articulos (precArt, existArt) VALUES (19.99, 150);
+-- trigger para la creacion de mesas 
+DELIMITER //
+CREATE TRIGGER before_insert_eventos
+BEFORE INSERT ON eventos
+FOR EACH ROW
+BEGIN
+    -- Verificar el valor de tipoEv y actualizar tipoDet con su respectivo tema
+    IF NEW.tipoEv = 'Boda' THEN SET NEW.tipoDet = 'Contrayente';
+    ELSEIF NEW.tipoEv = 'XV' THEN SET NEW.tipoDet = 'Tema';
+    ELSEIF NEW.tipoEv = 'Nacimientos' THEN SET NEW.tipoDet = 'Color';
+    END IF;
+END 
+//
+INSERT INTO eventos (nomEv, idLista, fecha, tipoEv) VALUES ('Fiesta de XV', 1, '2023-11-15', 'XV');
+INSERT INTO eventos (nomEv, idLista, fecha, tipoEv) VALUES ('Nacimiento de Sofía', 1, '2023-10-10', 'Nacimientos');
 -- 4.- Listar la sucursal y los regalos que están seleccionados para un evento en particular.
 DELIMITER //
-
 CREATE PROCEDURE ListarRegalosPorEvento(IN eventoId INT)
 BEGIN
     SELECT r.idReg AS IdRegalo, r.estadoReg AS EstadoRegalo, a.idArt AS IdArticulo, a.precArt AS PrecioArticulo, dr.mensaje AS MensajeInvitado
