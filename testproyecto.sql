@@ -81,6 +81,16 @@ END
 //
 INSERT INTO eventos (nomEv, idLista, fecha, tipoEv) VALUES ('Fiesta de XV', 1, '2023-11-15', 'XV');
 INSERT INTO eventos (nomEv, idLista, fecha, tipoEv) VALUES ('Nacimiento de Sofía', 1, '2023-10-10', 'Nacimientos');
+-- trigger para los regalos de disponible a adquirido 
+DELIMITER //
+CREATE TRIGGER after_regalo_adquirido
+AFTER INSERT ON detalle_regalos
+FOR EACH ROW
+BEGIN
+    UPDATE regalos SET estadoReg = 'adquirido' WHERE idReg = NEW.idReg AND estadoReg = 'disponible';
+END;
+//
+
 -- 4.- Listar la sucursal y los regalos que están seleccionados para un evento en particular.
 DELIMITER //
 CREATE PROCEDURE ListarRegalosPorEvento(IN eventoId INT)
