@@ -1,0 +1,69 @@
+USE MesaDeRegalos;
+
+CREATE TABLE clientes (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_cliente VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE bonos (
+    id_bono INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    monto DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+);
+
+CREATE TABLE sucursales (
+    id_sucursal INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_sucursal VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE inventario (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_producto VARCHAR(100) NOT NULL,
+    id_sucursal INT NOT NULL,
+    cantidad_disponible INT NOT NULL,
+    FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal)
+);
+
+INSERT INTO clientes (nombre_cliente) VALUES 
+('Carlos López'),
+('María Pérez'),
+('Ana Gómez');
+
+INSERT INTO bonos (id_cliente, monto) VALUES 
+(1, 1000.00),
+(2, 500.00),
+(3, 1000.00);
+
+INSERT INTO sucursales (nombre_sucursal) VALUES 
+('Sucursal Norte'),
+('Sucursal Sur');
+
+INSERT INTO inventario (nombre_producto, id_sucursal, cantidad_disponible) VALUES 
+('Producto A', 1, 50),
+('Producto B', 1, 30),
+('Producto C', 2, 20),
+('Producto D', 2, 15);
+
+SELECT 
+    c.id_cliente,
+    c.nombre_cliente
+FROM 
+    clientes c
+JOIN 
+    bonos b ON c.id_cliente = b.id_cliente
+WHERE 
+    b.monto = 1000.00;
+
+SELECT 
+    s.id_sucursal,
+    s.nombre_sucursal,
+    i.id_producto,
+    i.nombre_producto,
+    i.cantidad_disponible
+FROM 
+    sucursales s
+JOIN 
+    inventario i ON s.id_sucursal = i.id_sucursal
+ORDER BY 
+    s.id_sucursal, i.nombre_producto;
