@@ -52,7 +52,29 @@ tipoDet varchar(30),
 descripDet varchar(30),
 foreign key (idLista) references listas (idLista) on update cascade on delete cascade
 )engine=innodb;
-
+-- transacciónes
+delimiter //
+START TRANSACTION;
+-- Agregar un nuevo cliente (si no existe)
+INSERT INTO clientes (nomCli, dirCli) VALUES ('Celia Macias', 'Calzada Solidaridad')
+ON DUPLICATE KEY UPDATE idCli = LAST_INSERT_ID(idCli);
+-- Obtener el idCli del cliente
+SET @cliente_id = LAST_INSERT_ID();
+-- Crear una nueva mesa de regalos para el cliente
+INSERT INTO mesas_regalos (idCli, fechaCreacion) VALUES (@cliente_id, NOW());
+-- Obtener el idMesa de la nueva mesa de regalos
+SET @mesa_id = LAST_INSERT_ID();
+-- Agregar artículos a la mesa de regalos
+INSERT INTO articulos_mesa (idMesa, idArt, cantidad) VALUES (@mesa_id, 1, 2); 
+INSERT INTO articulos_mesa (idMesa, idArt, cantidad) VALUES (@mesa_id, 2, 1); 
+-- confirma la transacción
+COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Si hay un error no se completa la transacción
+        ROLLBACK;
+END;
+//
 -- Uso de procedimentos almacenados o triggers para la base de datos 
 -- trigger para agregar articulos 
 ALTER TABLE articulos ADD fechaAgregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
